@@ -1,0 +1,11 @@
+{% extends "base.html" %}{% block title %}Login — CVLift{% endblock %}
+{% block content %}
+<h2>Sign in</h2>
+<p class="muted">We’ll email you a magic link (in dev it prints in your terminal).</p>
+{% if sent %}<div class="note success">Magic link sent to <b>{{ email }}</b>.</div>{% endif %}
+<form method="post" class="form">
+  <label>Email</label>
+  <input name="email" type="email" placeholder="you@example.com" required>
+  <button class="btn btn-primary">Send magic link</button>
+</form>
+{% endblock %}

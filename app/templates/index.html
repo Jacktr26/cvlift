@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}CVLift — AI Résumés & Covers{% endblock %}
+{% block content %}
+<section class="hero">
+  <h1>Turn your CV into a tailored résumé & cover letter in minutes</h1>
+  <p class="sub">Paste your CV, drop a job link, download polished files.</p>
+  <div class="cta-row">
+    <a class="btn btn-primary" href="{{ url_for('routes.start') }}">Get started</a>
+    <a class="btn btn-ghost" href="{{ url_for('routes.dashboard') }}">View dashboard</a>
+  </div>
+</section>
+
+<section class="features">
+  <div class="card">
+    <h3>Smart match</h3>
+    <p>We highlight skills that map to the job description so you stand out.</p>
+  </div>
+  <div class="card">
+    <h3>Instant PDFs</h3>
+    <p>Download clean PDF (or HTML fallback in dev) with one click.</p>
+  </div>
+  <div class="card">
+    <h3>Pay-as-you-go</h3>
+    <p>Buy credits when you need them. No subscriptions, cancel anytime.</p>
+  </div>
+</section>
+{% endblock %}

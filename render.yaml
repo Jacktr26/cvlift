@@ -1,0 +1,20 @@
+services:
+- type: web
+  name: cvlift
+  env: python
+  plan: free
+  buildCommand: pip install -r requirements.txt
+  startCommand: gunicorn wsgi:app
+  envVars:
+  - key: SECRET_KEY
+    generateValue: true
+  - key: STRIPE_PUBLISHABLE_KEY
+    sync: false
+  - key: STRIPE_SECRET_KEY
+    sync: false
+  - key: STRIPE_PRICE_ID
+    sync: false
+  - key: BASE_URL
+    value: https://YOUR-SERVICE.onrender.com
+  - key: MAIL_DEFAULT_SENDER
+    value: cvlift@gmail.com

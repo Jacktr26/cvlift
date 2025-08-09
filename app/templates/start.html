@@ -1,0 +1,14 @@
+{% extends "base.html" %}{% block title %}Generate — CVLift{% endblock %}
+{% block content %}
+<h2>Create your tailored docs</h2>
+<form method="post" class="form">
+  <label>Your CV (paste text)</label>
+  <textarea name="cv_text" rows="10" placeholder="Paste your CV here"></textarea>
+
+  <label>Job URL (optional but recommended)</label>
+  <input name="job_url" placeholder="https://company.com/job/123">
+
+  <button class="btn btn-primary">Generate résumé & cover</button>
+</form>
+<p class="muted small">1 credit per job. First run is free.</p>
+{% endblock %}

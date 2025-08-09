@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{% block title %}CVLift{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="{{ url_for('routes.index') }}">CVLift</a>
+  <nav>
+    <a href="{{ url_for('routes.start') }}">Start</a>
+    <a href="{{ url_for('routes.dashboard') }}">Dashboard</a>
+    <a href="{{ url_for('auth.login') }}">Login</a>
+  </nav>
+</header>
+
+<main class="container">{% block content %}{% endblock %}</main>
+
+<footer class="site-footer">
+  <p>© {{ 2025 }} CVLift • AI résumés & cover letters</p>
+</footer>
+</body>
+</html>
