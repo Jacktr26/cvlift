@@ -1,29 +1,64 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{% block title %}CVLift{% endblock %}</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <meta name="color-scheme" content="dark light" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+  <style>
+    /* Minimal hard guarantees for dark + sticky footer */
+    :root { --bg: #0b0b0d; --text: #ffffff; --muted: #a3a3a3; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    .site-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 24px; border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .brand { font-weight: 700; text-decoration: none; color: var(--text); }
+    nav a { color: var(--text); opacity: .8; text-decoration: none; margin-left: 16px; }
+    nav a:hover { opacity: 1; }
+    main.container { flex: 1; width: 100%; max-width: 1100px; margin: 0 auto; padding: 24px; }
+    footer {
+      padding: 24px; text-align: center; color: var(--muted);
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    footer a { color: var(--muted); text-decoration: none; margin: 0 10px; }
+    footer a:hover { color: #d1d5db; }
+  </style>
 </head>
 <body>
-<header class="site-header">
-  <a class="brand" href="{{ url_for('routes.index') }}">CVLift</a>
-  <nav>
-    <a href="{{ url_for('routes.start') }}">Start</a>
-    <a href="{{ url_for('routes.dashboard') }}">Dashboard</a>
-    <a href="{{ url_for('auth.login') }}">Login</a>
-  </nav>
-</header>
+  <header class="site-header">
+    <a class="brand" href="{{ url_for('routes.index') }}">CVLift</a>
+    <nav>
+      <a href="{{ url_for('routes.start') }}">Start</a>
+      <a href="{{ url_for('routes.dashboard') }}">Dashboard</a>
+      {% if session.get('uid') %}
+        <a href="{{ url_for('auth.logout') }}">Logout</a>
+      {% else %}
+        <a href="{{ url_for('auth.login') }}">Login</a>
+      {% endif %}
+    </nav>
+  </header>
 
-<main class="container">{% block content %}{% endblock %}</main>
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
 
-<footer style="margin-top: 40px; padding: 20px; background: #f9f9f9; text-align: center; font-size: 0.9rem; color: #555;">
-  <p>&copy; {{ current_year }} CVLift. All rights reserved.</p>
-  <p>
-    <a href="{{ url_for('routes.privacy') }}" style="color: #555; text-decoration: none; margin: 0 10px;">Privacy Policy</a> |
-    <a href="{{ url_for('routes.terms') }}" style="color: #555; text-decoration: none; margin: 0 10px;">Terms of Service</a>
-  </p>
-</footer>
+  <footer>
+    <p>&copy; {{ current_year }} CVLift. All rights reserved.</p>
+    <p>
+      <a href="{{ url_for('routes.privacy') }}">Privacy Policy</a> |
+      <a href="{{ url_for('routes.terms') }}">Terms of Service</a>
+    </p>
+  </footer>
 </body>
 </html>

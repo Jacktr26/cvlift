@@ -1,3 +1,28 @@
+html, body {
+  height: 100%;
+  background-color: #0b0b0d; /* Match your hero background */
+  color: #fff; /* Default text color */
+  margin: 0;
+  padding: 0;
+}
+
+main.container {
+  background-color: #0b0b0d; /* Keeps main area consistent */
+}
+
+footer {
+  background-color: #0b0b0d; /* Match body background */
+  color: #aaa;
+}
+
+a {
+  color: #8ab4f8; /* Link color */
+}
+
+a:hover {
+  color: #a3c9ff;
+}
+
 :root{
   --bg:#0b0b0c; --panel:#111214; --muted:#a3a3ad; --text:#eaeaf2;
   --brand:#6ea8fe; --brand-2:#9b8cff; --border:#1d1f23; --ok:#2ecc71;
@@ -76,7 +101,4 @@ textarea{resize:vertical}
   color: #777;
   margin-bottom: 20px;
 }
-body {
-  background: #0b0b0d; /* or match your hero's dark background */
-  color: #fff; /* optional for text */
-}
+
