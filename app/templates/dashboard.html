@@ -1,23 +1,30 @@
-{% extends "base.html" %}{% block title %}Dashboard — CVLift{% endblock %}
+{% extends "base.html" %}
+{% block title %}Dashboard — CVLift{% endblock %}
+
 {% block content %}
 <div class="dash-header">
   <h2>Dashboard</h2>
-  <div class="credits">Credits: <span>{{ user.credits }}</span></div>
+  <div class="credits">
+    Credits: <span>{{ user.credits }}</span>
+  </div>
 </div>
+
 <a class="btn btn-primary" href="{{ url_for('billing.checkout') }}">Buy 5 credits</a>
 
 <h3 class="mt">Recent documents</h3>
 <ul class="doc-list">
-{% for d in docs %}
-  <li class="doc-item">
-    <div>
-      <strong>{{ d.kind|title }}</strong>
-      <div class="muted small">{{ d.created_at.strftime("%Y-%m-%d %H:%M") }}</div>
-    </div>
-    <a class="btn btn-secondary" href="/{{ d.pdf_path }}" download>Download</a>
-  </li>
-{% else %}
-  <li class="muted">No documents yet.</li>
-{% endfor %}
+  {% for d in docs %}
+    <li class="doc-item">
+      <div>
+        <strong>{{ d.kind|title }}</strong>
+        <div class="muted small">
+          {{ d.created_at.strftime("%Y-%m-%d %H:%M") }}
+        </div>
+      </div>
+      <a class="btn btn-secondary" href="/{{ d.pdf_path }}" download>Download</a>
+    </li>
+  {% else %}
+    <li class="muted">No documents yet.</li>
+  {% endfor %}
 </ul>
 {% endblock %}

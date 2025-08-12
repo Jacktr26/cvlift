@@ -5,9 +5,13 @@
   <h1>Turn your CV into a tailored résumé & cover letter in minutes</h1>
   <p class="sub">Paste your CV, drop a job link, download polished files.</p>
   <div class="cta-row">
-    <a class="btn btn-primary" href="{{ url_for('routes.start') }}">Get started</a>
+  <a class="btn btn-primary" href="{{ url_for('routes.start') }}">Get started</a>
+  {% if session.get('uid') %}
     <a class="btn btn-ghost" href="{{ url_for('routes.dashboard') }}">View dashboard</a>
-  </div>
+  {% else %}
+    <a class="btn btn-ghost" href="{{ url_for('auth.login') }}">Log in</a>
+  {% endif %}
+</div>
 </section>
 
 <section class="features">

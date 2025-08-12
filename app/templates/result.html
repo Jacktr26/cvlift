@@ -1,16 +1,24 @@
-{% extends "base.html" %}{% block title %}Your Documents — CVLift{% endblock %}
+{% extends "base.html" %}
+{% block title %}Your Documents — CVLift{% endblock %}
+
 {% block content %}
 <h2>Your documents</h2>
+
 <ul class="doc-list">
-  {% for d in docs %}
-    <li class="doc-item">
-      <div>
-        <strong>{{ d.kind|title }}</strong>
-        <div class="muted small">{{ d.created_at.strftime("%Y-%m-%d %H:%M") }}</div>
-      </div>
-      <a class="btn btn-secondary" href="/{{ d.pdf_path }}" download>Download</a>
-    </li>
-  {% endfor %}
+  {% if docs %}
+    {% for d in docs %}
+      <li class="doc-item">
+        <div>
+          <strong>{{ d.kind|title }}</strong>
+          <div class="muted small">{{ d.created_at.strftime("%Y-%m-%d %H:%M") }}</div>
+        </div>
+        <a class="btn btn-secondary" href="/{{ d.pdf_path }}" download>Download</a>
+      </li>
+    {% endfor %}
+  {% else %}
+    <li class="muted">You haven’t generated any documents yet.</li>
+  {% endif %}
 </ul>
+
 <a class="btn btn-ghost" href="{{ url_for('routes.dashboard') }}">Back to dashboard</a>
 {% endblock %}
