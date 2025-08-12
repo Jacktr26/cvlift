@@ -76,3 +76,7 @@ textarea{resize:vertical}
   color: #777;
   margin-bottom: 20px;
 }
+body {
+  background: #0b0b0d; /* or match your hero's dark background */
+  color: #fff; /* optional for text */
+}
