@@ -40,3 +40,12 @@ def dashboard():
     if not user: return redirect(url_for("auth.login"))
     docs = Doc.query.filter_by(user_id=user.id).order_by(Doc.created_at.desc()).all()
     return render_template("dashboard.html", user=user, docs=docs)
+
+@app.route("/privacy")
+def privacy():
+    return render_template("privacy.html")
+
+@app.route("/terms")
+def terms():
+    return render_template("terms.html")
+
