@@ -1,31 +1,57 @@
 {% extends "base.html" %}
 {% block title %}CVLift — AI Résumés & Covers{% endblock %}
+
 {% block content %}
 <section class="hero">
-  <h1>Turn your CV into a tailored résumé & cover letter in minutes</h1>
-  <p class="sub">Paste your CV, drop a job link, download polished files.</p>
+  <h1>Tailor your résumé & cover letter to any job in 60 seconds</h1>
+  <p class="sub">
+    Paste your CV, add the job link, and instantly get recruiter-ready, ATS-optimised documents.
+  </p>
   <div class="cta-row">
-  <a class="btn btn-primary" href="{{ url_for('routes.start') }}">Get started</a>
-  {% if session.get('uid') %}
-    <a class="btn btn-ghost" href="{{ url_for('routes.dashboard') }}">View dashboard</a>
-  {% else %}
-    <a class="btn btn-ghost" href="{{ url_for('auth.login') }}">Log in</a>
-  {% endif %}
-</div>
+    <a class="btn btn-primary" href="{{ url_for('routes.start') }}">Get started</a>
+    {% if session.get('uid') %}
+      <a class="btn btn-ghost" href="{{ url_for('routes.dashboard') }}">View dashboard</a>
+    {% else %}
+      <a class="btn btn-ghost" href="{{ url_for('auth.login') }}">Log in</a>
+    {% endif %}
+    <a class="btn btn-ghost" href="{{ url_for('routes.start') }}?demo=1">Try demo</a>
+  </div>
+  <p class="muted small" style="margin-top:0.5rem;">
+    Pay only when you’re ready to download. No subscriptions.
+  </p>
 </section>
 
 <section class="features">
   <div class="card">
-    <h3>Smart match</h3>
-    <p>We highlight skills that map to the job description so you stand out.</p>
+    <h3>ATS-optimised</h3>
+    <p>We scan the job description, pull relevant keywords, and ensure your CV passes Applicant Tracking Systems.</p>
   </div>
   <div class="card">
-    <h3>Instant PDFs</h3>
-    <p>Download clean PDF (or HTML fallback in dev) with one click.</p>
+    <h3>Professional formatting</h3>
+    <p>Instantly generate clean, recruiter-friendly PDFs you can send straight to employers.</p>
   </div>
   <div class="card">
-    <h3>Pay-as-you-go</h3>
-    <p>Buy credits when you need them. No subscriptions, cancel anytime.</p>
+    <h3>Flexible credits</h3>
+    <p>Buy credits only when you need them. No contracts, no recurring payments.</p>
+  </div>
+</section>
+
+<section class="faqs">
+  <h2>Frequently Asked Questions</h2>
+
+  <div class="faq-item">
+    <h4>Will this work with ATS?</h4>
+    <p>Yes. CVLift scans the job description, identifies important keywords, and ensures your résumé is ATS-friendly.</p>
+  </div>
+
+  <div class="faq-item">
+    <h4>Do you store my data?</h4>
+    <p>No. We process your CV and job details only to generate your documents. They are then deleted from our system.</p>
+  </div>
+
+  <div class="faq-item">
+    <h4>How much does it cost?</h4>
+    <p>You only pay when you’re ready to download. Credits start from £5 for 5 jobs. No subscriptions or hidden fees.</p>
   </div>
 </section>
 {% endblock %}

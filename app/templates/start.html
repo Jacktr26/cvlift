@@ -4,17 +4,60 @@
 {% block content %}
 <h2>Create your tailored docs</h2>
 
-<form method="post" class="form">
+<form method="post" class="form" id="generate-form">
   <label for="cv_text">Your CV (paste text)</label>
   <textarea id="cv_text" name="cv_text" rows="10" placeholder="Paste your CV here" required></textarea>
 
   <label for="job_url">Job URL (optional but recommended)</label>
   <input id="job_url" name="job_url" type="url" placeholder="https://company.com/job/123">
 
-  <button class="btn btn-primary">Generate résumé & cover</button>
+  <div class="form-actions" style="margin-top: 1rem;">
+    <button class="btn btn-primary">Generate résumé & cover</button>
+    <button type="button" id="demo-btn" class="btn btn-ghost">Try demo</button>
+  </div>
 </form>
 
 <div class="muted small" style="margin-top: 0.5rem;">
-  1 credit per job. First run is free.
+  1 credit per job.
 </div>
+
+<script>
+(function() {
+  const sampleCV = `John Doe
+123 Main Street, London, UK
+Email: john@example.com | Phone: +44 7123 456789
+
+Experience:
+Software Engineer at TechCorp (2021–Present)
+- Built and maintained web applications in Python and JavaScript
+- Collaborated with cross-functional teams to deliver features on time
+
+Education:
+BSc Computer Science, University of Example (2018–2021)
+
+Skills:
+Python, JavaScript, Flask, SQL, Git, Agile
+`;
+
+  const sampleJob = `https://jobs.example.com/software-engineer`;
+
+  function fillDemo() {
+    document.getElementById('cv_text').value = sampleCV;
+    document.getElementById('job_url').value = sampleJob;
+  }
+
+  // Manual demo button
+  document.getElementById('demo-btn').addEventListener('click', fillDemo);
+
+  // Auto-fill + auto-submit if ?demo=1
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('demo') === '1') {
+    fillDemo();
+    // Delay submit so DOM updates
+    setTimeout(() => {
+      document.getElementById('generate-form').submit();
+    }, 300);
+  }
+})();
+</script>
 {% endblock %}

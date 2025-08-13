@@ -2,21 +2,31 @@
 {% block title %}Your Documents — CVLift{% endblock %}
 
 {% block content %}
-<h2>Your documents</h2>
+{% if demo or request.args.get('demo') %}
+  <div class="note warning" style="margin-bottom: 1rem; padding: 1rem; background: #fff3cd; color: #856404; border-radius: 6px;">
+    <strong>Demo Mode:</strong> This is a sample résumé and cover letter generated from example data.
+    Paste your own CV and job link on the <a href="{{ url_for('routes.start') }}">Generate page</a> to create your own.
+  </div>
+{% endif %}
 
+<h2>Your documents</h2>
 <ul class="doc-list">
   {% if docs %}
     {% for d in docs %}
       <li class="doc-item">
         <div>
           <strong>{{ d.kind|title }}</strong>
-          <div class="muted small">{{ d.created_at.strftime("%Y-%m-%d %H:%M") }}</div>
+          <div class="muted small">
+            {% if d.created_at %}
+              {{ d.created_at.strftime("%Y-%m-%d %H:%M") }}
+            {% endif %}
+          </div>
         </div>
         <a class="btn btn-secondary" href="/{{ d.pdf_path }}" download>Download</a>
       </li>
     {% endfor %}
   {% else %}
-    <li class="muted">You haven’t generated any documents yet.</li>
+    <li class="muted">No documents yet.</li>
   {% endif %}
 </ul>
 

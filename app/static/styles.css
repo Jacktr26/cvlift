@@ -102,3 +102,14 @@ textarea{resize:vertical}
   margin-bottom: 20px;
 }
 
+.faqs {
+  margin-top: 3rem;
+}
+.faq-item {
+  margin-bottom: 1.5rem;
+}
+.faq-item h4 {
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
