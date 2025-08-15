@@ -22,3 +22,6 @@ class Config:
     STRIPE_PUBLISHABLE_KEY = os.environ.get("STRIPE_PUBLISHABLE_KEY")
     STRIPE_PRICE_ID = os.environ.get("STRIPE_PRICE_ID")
 
+    SESSION_COOKIE_SAMESITE = "Lax"  # allows top-level link from email
+    SESSION_COOKIE_SECURE = True  # only over HTTPS (Render is HTTPS)
+

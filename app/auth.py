@@ -1,93 +1,93 @@
 # app/auth.py
-from flask import Blueprint, render_template, request, redirect, url_for, session, current_app
+from flask import Blueprint, request, render_template, redirect, url_for, session, current_app
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
-from sendgrid import SendGridAPIClient
+from .models import User, db
+import os
+import sendgrid
 from sendgrid.helpers.mail import Mail
-from .models import db, User
 
 bp = Blueprint("auth", __name__)
 
+# --- Helpers ---
 def _serializer():
-    # Separate salt so these tokens can't collide with others
-    return URLSafeTimedSerializer(current_app.config["SECRET_KEY"], salt="magic-login")
+    secret = current_app.config["SECRET_KEY"]
+    return URLSafeTimedSerializer(secret, salt="login")
 
-def _send_magic_email(to_email: str, link: str) -> bool:
-    """Send magic link via SendGrid. Returns True on HTTP 2xx."""
-    api_key = current_app.config.get("SENDGRID_API_KEY")
-    sender  = current_app.config.get("MAIL_DEFAULT_SENDER")
-
-    if not api_key:
-        current_app.logger.error("SENDGRID_API_KEY missing from config/env")
-        return False
-    if not sender:
-        current_app.logger.error("MAIL_DEFAULT_SENDER missing from config/env")
-        return False
+def _send_login_email(email, token):
+    """Send the magic link via SendGrid."""
+    base_url = current_app.config.get("BASE_URL", "http://localhost:5000")
+    link = url_for("auth.magic", token=token, _external=True, _scheme="https")
 
     message = Mail(
-        from_email=sender,
-        to_emails=to_email,
-        subject="Your CVLift sign-in link",
-        html_content=(
-            f"<p>Click to sign in:</p>"
-            f"<p><a href='{link}'>{link}</a></p>"
-            f"<p style='color:#666'>This link expires in 15 minutes.</p>"
-        ),
+        from_email=current_app.config["MAIL_FROM"],
+        to_emails=email,
+        subject="Your CVLift login link",
+        html_content=f"Click to sign in: <a href='{link}'>{link}</a>"
     )
 
     try:
-        sg = SendGridAPIClient(api_key)
-        resp = sg.send(message)
-        current_app.logger.info("SendGrid status: %s", resp.status_code)
-        return 200 <= resp.status_code < 300
+        sg = sendgrid.SendGridAPIClient(api_key=current_app.config["SENDGRID_API_KEY"])
+        sg.send(message)
+        current_app.logger.info("Sent login email to %s", email)
     except Exception as e:
         current_app.logger.error("SendGrid error: %s", e)
-        return False
 
+# --- Routes ---
 @bp.route("/login", methods=["GET", "POST"])
 def login():
-    """Request a magic link. Creates the user on first login."""
-    sent = False
-    email = None
-
     if request.method == "POST":
-        email = (request.form.get("email") or "").strip().lower()
+        email = request.form.get("email")
         if not email:
-            return render_template("login.html", sent=False, email=None)
+            return render_template("login.html", error="Email required")
 
-        # find or create user
         user = User.query.filter_by(email=email).first()
         if not user:
-            user = User(email=email, credits=0)
+            user = User(email=email)
             db.session.add(user)
             db.session.commit()
 
-        # mint token & absolute URL
         token = _serializer().dumps({"uid": user.id})
-        link = url_for("auth.magic", token=token, _external=True)
+        _send_login_email(email, token)
 
-        sent = _send_magic_email(email, link)
+        return render_template("login.html", message="Check your email for a login link.")
 
-    return render_template("login.html", sent=sent, email=email)
+    return render_template("login.html")
+
 
 @bp.get("/magic/<token>")
 def magic(token):
-    """Consume magic link; log the user in."""
     try:
-        data = _serializer().loads(token, max_age=900)  # 15 minutes
+        data = _serializer().loads(token, max_age=900)  # 15 min expiry
         uid = int(data["uid"])
-    except (SignatureExpired, BadSignature, KeyError, ValueError):
-        current_app.logger.warning("Invalid/expired magic token")
+    except SignatureExpired:
+        current_app.logger.warning("Magic token expired")
+        return redirect(url_for("auth.login"))
+    except (BadSignature, Exception) as e:
+        current_app.logger.warning("Magic token invalid: %s", e)
         return redirect(url_for("auth.login"))
 
     user = User.query.get(uid)
     if not user:
-        current_app.logger.warning("Token for missing user id=%s", uid)
+        current_app.logger.warning("Magic token ok but user id %s not found", uid)
         return redirect(url_for("auth.login"))
 
     session["uid"] = user.id
+    current_app.logger.error("Magic success; set session for uid=%s", user.id)  # temp ERROR for visibility
     return redirect(url_for("routes.dashboard"))
+
 
 @bp.get("/logout")
 def logout():
     session.clear()
-    return redirect(url_for("routes.index"))
+    return redirect(url_for("auth.login"))
+
+
+# --- Debug (remove in prod) ---
+@bp.get("/debug/set")
+def debug_set():
+    session["uid"] = -1
+    return "session set"
+
+@bp.get("/debug/whoami")
+def debug_whoami():
+    return f"uid={session.get('uid')!r}"
