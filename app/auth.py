@@ -1,93 +1,70 @@
 # app/auth.py
-from flask import Blueprint, request, render_template, redirect, url_for, session, current_app
-from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
-from .models import User, db
 import os
-import sendgrid
+import itsdangerous
+from flask import Blueprint, request, redirect, url_for, render_template, flash, current_app, session
+from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
+from .models import User
+from . import db
 
 bp = Blueprint("auth", __name__)
 
-# --- Helpers ---
-def _serializer():
-    secret = current_app.config["SECRET_KEY"]
-    return URLSafeTimedSerializer(secret, salt="login")
+serializer = itsdangerous.URLSafeTimedSerializer(
+    os.getenv("SECRET_KEY", "dev-secret")
+)
 
 def _send_login_email(email, token):
-    """Send the magic link via SendGrid."""
-    base_url = current_app.config.get("BASE_URL", "http://localhost:5000")
-    link = url_for("auth.magic", token=token, _external=True, _scheme="https")
+    """Send a magic login link via SendGrid, or log an error if misconfigured."""
+    login_url = f"{current_app.config['BASE_URL']}/magic/{token}"
+
+    mail_from = current_app.config.get("MAIL_FROM")
+    api_key = current_app.config.get("SENDGRID_API_KEY")
+
+    if not mail_from or not api_key:
+        current_app.logger.error("Email not sent: MAIL_FROM or SENDGRID_API_KEY missing")
+        return False
 
     message = Mail(
-        from_email=current_app.config["MAIL_FROM"],
+        from_email=mail_from,
         to_emails=email,
         subject="Your CVLift login link",
-        html_content=f"Click to sign in: <a href='{link}'>{link}</a>"
+        html_content=f"<p>Click to sign in: <a href='{login_url}'>{login_url}</a></p>",
     )
-
     try:
-        sg = sendgrid.SendGridAPIClient(api_key=current_app.config["SENDGRID_API_KEY"])
+        sg = SendGridAPIClient(api_key)
         sg.send(message)
-        current_app.logger.info("Sent login email to %s", email)
+        return True
     except Exception as e:
-        current_app.logger.error("SendGrid error: %s", e)
+        current_app.logger.error(f"SendGrid error: {e}")
+        return False
 
-# --- Routes ---
 @bp.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        email = request.form.get("email")
-        if not email:
-            return render_template("login.html", error="Email required")
+        email = request.form["email"]
+        token = serializer.dumps(email, salt="login")
 
-        user = User.query.filter_by(email=email).first()
-        if not user:
-            user = User(email=email)
-            db.session.add(user)
-            db.session.commit()
-
-        token = _serializer().dumps({"uid": user.id})
-        _send_login_email(email, token)
-
-        return render_template("login.html", message="Check your email for a login link.")
+        if not _send_login_email(email, token):
+            flash("Could not send login email. Please try again later.", "error")
+        else:
+            flash("Check your inbox for a login link!", "success")
 
     return render_template("login.html")
 
-
-@bp.get("/magic/<token>")
+@bp.route("/magic/<token>")
 def magic(token):
     try:
-        data = _serializer().loads(token, max_age=900)  # 15 min expiry
-        uid = int(data["uid"])
-    except SignatureExpired:
-        current_app.logger.warning("Magic token expired")
-        return redirect(url_for("auth.login"))
-    except (BadSignature, Exception) as e:
-        current_app.logger.warning("Magic token invalid: %s", e)
+        email = serializer.loads(token, salt="login", max_age=600)
+    except itsdangerous.BadSignature:
+        flash("Invalid or expired link.", "error")
         return redirect(url_for("auth.login"))
 
-    user = User.query.get(uid)
+    user = User.query.filter_by(email=email).first()
     if not user:
-        current_app.logger.warning("Magic token ok but user id %s not found", uid)
-        return redirect(url_for("auth.login"))
+        user = User(email=email)
+        db.session.add(user)
+        db.session.commit()
 
-    session["uid"] = user.id
-    current_app.logger.error("Magic success; set session for uid=%s", user.id)  # temp ERROR for visibility
+    session["user_id"] = user.id
+    flash("You’re now signed in!", "success")
     return redirect(url_for("routes.dashboard"))
-
-
-@bp.get("/logout")
-def logout():
-    session.clear()
-    return redirect(url_for("auth.login"))
-
-
-# --- Debug (remove in prod) ---
-@bp.get("/debug/set")
-def debug_set():
-    session["uid"] = -1
-    return "session set"
-
-@bp.get("/debug/whoami")
-def debug_whoami():
-    return f"uid={session.get('uid')!r}"

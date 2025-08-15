@@ -2,26 +2,20 @@
 import os
 
 class Config:
-    # Flask
-    SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret")
-    PREFERRED_URL_SCHEME = os.environ.get("PREFERRED_URL_SCHEME", "https")
-
-    # Database
-    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
+    SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret")
+    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    # Email (SendGrid API)
-    SENDGRID_API_KEY = os.environ.get("SENDGRID_API_KEY")  # SG.xxxxx...
-    MAIL_DEFAULT_SENDER = os.environ.get("MAIL_DEFAULT_SENDER", "no-reply@cvlift.co.uk")
-
-    # Optional: show/hide dev behavior
-    ENV = os.environ.get("FLASK_ENV", os.environ.get("ENV", "production"))
+    # Email
+    SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY")
+    MAIL_FROM = os.getenv("MAIL_FROM", "no-reply@cvlift.com")
 
     # Stripe
-    STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY")
-    STRIPE_PUBLISHABLE_KEY = os.environ.get("STRIPE_PUBLISHABLE_KEY")
-    STRIPE_PRICE_ID = os.environ.get("STRIPE_PRICE_ID")
+    STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
+    STRIPE_PUBLISHABLE_KEY = os.getenv("STRIPE_PUBLISHABLE_KEY")
 
-    SESSION_COOKIE_SAMESITE = "Lax"  # allows top-level link from email
-    SESSION_COOKIE_SECURE = True  # only over HTTPS (Render is HTTPS)
+    # Session
+    SESSION_COOKIE_SECURE = True
+    SESSION_COOKIE_SAMESITE = "Lax"
 
+    BASE_URL = os.getenv("BASE_URL", "https://cvlift.onrender.com")
